@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "appName": {
+      "value": "apimTrafficMgr"
+    },
+    "region1": {
+      "value": "ussc"
+    },
+    "region2": {
+      "value": "eus"
+    },
+    "environment": {
+      "value": "dev"
+    },
+    "location1": {
+      "value": "southcentralus"
+    },
+    "location2": {
+      "value": "eastus"
+    },
+    "apiManagementServicePublisherName": {
+      "value": ""
+    },
+    "apiManagementServicePublisherEmail": {
+      "value": ""
+    }
+  }
+}
