@@ -1,7 +1,5 @@
 param appServicePlanName string
 param functionAppName string
-param functionAppHealthProbeEndpointName string
-param functionAppApplicationEndpointName string
 param location string
 param logAnalyticsWorkspaceName string
 param vNetName string
@@ -12,7 +10,8 @@ param privateEndpointSubnetName string
 param privateDnsZoneName string
 param appInsightsName string
 param storageAccountName string
-param shouldEnablePrivateEndpoint bool
+@secure()
+param functionAppKey string
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
   name: logAnalyticsWorkspaceName
@@ -90,11 +89,18 @@ resource functionApp 'Microsoft.Web/sites@2021-03-01' = {
   // }
 }
 
+resource functionKey 'Microsoft.Web/sites/host/functionKeys@2018-11-01' = {
+  name: '${functionAppName}/default/sharedAccessKey'
+  properties: {
+    value: functionAppKey
+  }
+}
+
 resource privateEndpointSubnet 'Microsoft.Network/virtualNetworks/subnets@2021-08-01' existing = {
   name: '${vNetName}/${privateEndpointSubnetName}'
 }
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2021-08-01' = if (shouldEnablePrivateEndpoint) {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2021-08-01' = {
   name: functionAppPrivateEndpointName
   location: location
   properties: {
@@ -115,7 +121,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2021-08-01' = if (s
   }
 }
 
-resource networkInterface 'Microsoft.Network/networkInterfaces@2021-08-01' = if (shouldEnablePrivateEndpoint) {
+resource networkInterface 'Microsoft.Network/networkInterfaces@2021-08-01' = {
   name: functionAppNetworkInterfaceName
   location: location
   properties: {
@@ -136,8 +142,8 @@ resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' existing 
   name: privateDnsZoneName
 }
 
-resource privateEndpointDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = if (shouldEnablePrivateEndpoint) {
-  name: '${functionAppPrivateEndpointName}/${privateDnsZoneName}-group'
+resource privateEndpointDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-08-01' = {
+  name: '${privateEndpoint.name}/${privateDnsZoneName}-group'
   properties: {
     privateDnsZoneConfigs: [
       {
@@ -171,4 +177,3 @@ resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
 }
 
 output functionAppName string = functionApp.name
-output functionAppHealthProbeEndpointName string = functionAppHealthProbeEndpointName

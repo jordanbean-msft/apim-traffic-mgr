@@ -6,7 +6,8 @@ param location1 string = resourceGroup().location
 param location2 string
 param apiManagementServicePublisherEmail string
 param apiManagementServicePublisherName string
-param shouldEnablePrivateEndpoint bool
+@secure()
+param functionAppKey string
 
 module names 'resource-names.bicep' = {
   name: 'resource-names'
@@ -18,6 +19,14 @@ module names 'resource-names.bicep' = {
   }
 }
 
+module managedIdentityDeployment 'managed-identity.bicep' = {
+  name: 'managed-identity-deployment'
+  params: {
+    location: location1
+    managedIdentityName: names.outputs.managedIdentityName
+  }
+}
+
 module loggingDeployment 'logging.bicep' = {
   name: 'logging-deployment'
   params: {
@@ -26,6 +35,18 @@ module loggingDeployment 'logging.bicep' = {
     appInsightsName: names.outputs.appInsightsName
     functionAppRegion1Name: names.outputs.region1FunctionName
     functionAppRegion2Name: names.outputs.region2FunctionName
+  }
+}
+
+module keyVaultDeployment 'key-vault.bicep' = {
+  name: 'key-vault-deployment'
+  params: {
+    functionAppKey: functionAppKey
+    functionAppKeySecretName: names.outputs.functionAppKeySecretName
+    keyVaultName: names.outputs.keyVaultName
+    location: location1
+    logAnalyticsWorkspaceName: loggingDeployment.outputs.logAnalyticsWorkspaceName
+    managedIdentityName: managedIdentityDeployment.outputs.managedIdentityName
   }
 }
 
@@ -83,8 +104,6 @@ module functionRegion1Deployment 'function.bicep' = {
   params: {
     applicationSubnetName: virtualNetworkRegion1Deployment.outputs.applicationSubnetName
     appServicePlanName: names.outputs.region1AppServicePlanName
-    functionAppApplicationEndpointName: names.outputs.region1functionAppApplicationEndpointName
-    functionAppHealthProbeEndpointName: names.outputs.region1functionAppHealthProbeEndpointName
     functionAppName: names.outputs.region1FunctionName
     functionAppNetworkInterfaceName: names.outputs.region1functionAppNetworkInterfaceName
     functionAppPrivateEndpointName: names.outputs.region1functionAppPrivateEndpointName
@@ -95,7 +114,7 @@ module functionRegion1Deployment 'function.bicep' = {
     privateDnsZoneName: dnsZoneDeployment.outputs.privateDnsZoneName
     storageAccountName: storageRegion1Deployment.outputs.storageAccountName
     appInsightsName: loggingDeployment.outputs.appInsightsName
-    shouldEnablePrivateEndpoint: shouldEnablePrivateEndpoint
+    functionAppKey: functionAppKey
   }
 }
 
@@ -104,8 +123,6 @@ module functionRegion2Deployment 'function.bicep' = {
   params: {
     applicationSubnetName: virtualNetworkRegion2Deployment.outputs.applicationSubnetName
     appServicePlanName: names.outputs.region2AppServicePlanName
-    functionAppApplicationEndpointName: names.outputs.region2functionAppApplicationEndpointName
-    functionAppHealthProbeEndpointName: names.outputs.region2functionAppHealthProbeEndpointName
     functionAppName: names.outputs.region2FunctionName
     functionAppNetworkInterfaceName: names.outputs.region2functionAppNetworkInterfaceName
     functionAppPrivateEndpointName: names.outputs.region2functionAppPrivateEndpointName
@@ -116,7 +133,7 @@ module functionRegion2Deployment 'function.bicep' = {
     privateDnsZoneName: dnsZoneDeployment.outputs.privateDnsZoneName
     storageAccountName: storageRegion1Deployment.outputs.storageAccountName
     appInsightsName: loggingDeployment.outputs.appInsightsName
-    shouldEnablePrivateEndpoint: shouldEnablePrivateEndpoint
+    functionAppKey: functionAppKey
   }
 }
 
@@ -125,7 +142,7 @@ module applicationGatewayRegion1Deployment 'application-gateway.bicep' = {
   params: {
     applicationGatewayName: names.outputs.region1ApplicationGatewayName
     applicationGatewaySubnetName: virtualNetworkRegion1Deployment.outputs.applicationGatewaySubnetName
-    functionAppHealthProbeEndpointName: functionRegion1Deployment.outputs.functionAppHealthProbeEndpointName
+    functionAppHealthProbeEndpointName: names.outputs.functionAppHealthProbeEndpointName
     functionAppName: functionRegion1Deployment.outputs.functionAppName
     location: location1
     logAnalyticsWorkspaceName: loggingDeployment.outputs.logAnalyticsWorkspaceName
@@ -139,7 +156,7 @@ module applicationGatewayRegion2Deployment 'application-gateway.bicep' = {
   params: {
     applicationGatewayName: names.outputs.region2ApplicationGatewayName
     applicationGatewaySubnetName: virtualNetworkRegion2Deployment.outputs.applicationGatewaySubnetName
-    functionAppHealthProbeEndpointName: functionRegion2Deployment.outputs.functionAppHealthProbeEndpointName
+    functionAppHealthProbeEndpointName: names.outputs.functionAppHealthProbeEndpointName
     functionAppName: functionRegion2Deployment.outputs.functionAppName
     location: location2
     logAnalyticsWorkspaceName: loggingDeployment.outputs.logAnalyticsWorkspaceName
@@ -158,6 +175,10 @@ module apiManagementDeployment 'api-management.bicep' = {
     logAnalyticsWorkspaceName: loggingDeployment.outputs.logAnalyticsWorkspaceName
     region1: region1
     region2: region2
+    trafficManagerName: trafficManagerDeployment.outputs.trafficManagerName
+    keyVaultName: keyVaultDeployment.outputs.keyVaultName
+    keyVaultSecretName: keyVaultDeployment.outputs.functionAppKeyName
+    managedIdentityName: managedIdentityDeployment.outputs.managedIdentityName
   }
 }
 

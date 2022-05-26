@@ -42,6 +42,12 @@ resource vNet 'Microsoft.Network/virtualNetworks@2021-08-01' = {
           addressPrefix: '10.0.2.0/24'
         }
       }
+      {
+        name: 'GatewaySubnet'
+        properties: {
+          addressPrefix: '10.0.3.0/24'
+        }
+      }
     ]
   }
 }

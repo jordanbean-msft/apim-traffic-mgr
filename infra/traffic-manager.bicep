@@ -29,9 +29,9 @@ resource trafficManager 'Microsoft.Network/trafficmanagerprofiles@2018-08-01' = 
     }
     monitorConfig: {
       profileMonitorStatus: 'Online'
-      protocol: 'HTTPS'
-      port: 443
-      path: '/status-0123456789abcdef'
+      protocol: 'HTTP'
+      port: 80
+      path: '/'
       toleratedNumberOfFailures: 3
       intervalInSeconds: 30
       timeoutInSeconds: 10
