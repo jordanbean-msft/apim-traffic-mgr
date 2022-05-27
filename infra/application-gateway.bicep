@@ -5,7 +5,6 @@ param applicationGatewaySubnetName string
 param vNetName string
 param publicIpName string
 param functionAppName string
-param functionAppHealthProbeEndpointName string
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
   name: logAnalyticsWorkspaceName
@@ -145,7 +144,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2021-08-01' =
           protocol: 'Https'
           host: '${functionAppName}.azurewebsites.net'
           port: 443
-          path: '/api/${functionAppHealthProbeEndpointName}'
+          path: '/'
           interval: 30
           timeout: 30
           unhealthyThreshold: 3
