@@ -75,22 +75,10 @@ resource functionApp 'Microsoft.Web/sites@2021-03-01' = {
       ]
     }
   }
-  // resource health 'functions@2021-03-01' = {
-  //   name: functionAppHealthProbeEndpointName
-  //   properties: {
-  //     language: 'CSharp'
-  //   }
-  // }
-  // resource application 'functions@2021-03-01' = {
-  //   name: functionAppApplicationEndpointName
-  //   properties: {
-  //     language: 'CSharp'
-  //   }
-  // }
 }
 
 resource functionKey 'Microsoft.Web/sites/host/functionKeys@2018-11-01' = {
-  name: '${functionAppName}/default/sharedAccessKey'
+  name: '${functionApp.name}/default/sharedAccessKey'
   properties: {
     value: functionAppKey
   }
