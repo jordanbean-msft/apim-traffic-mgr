@@ -153,3 +153,4 @@ resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
 }
 
 output frontDoorName string = frontDoor.name
+output frontDoorEndpoint string = 'https://${frontDoor.properties.frontendEndpoints[0].properties.hostName}'

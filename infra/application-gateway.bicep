@@ -185,3 +185,4 @@ resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
 
 output applicationGatewayName string = applicationGateway.name
 output publicIpName string = publicIp.name
+output applicationGatewayEndpoint string = 'https://${publicIp.properties.dnsSettings.fqdn}'

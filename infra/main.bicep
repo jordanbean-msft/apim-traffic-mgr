@@ -142,7 +142,6 @@ module applicationGatewayRegion1Deployment 'application-gateway.bicep' = {
   params: {
     applicationGatewayName: names.outputs.region1ApplicationGatewayName
     applicationGatewaySubnetName: virtualNetworkRegion1Deployment.outputs.applicationGatewaySubnetName
-    functionAppHealthProbeEndpointName: names.outputs.functionAppHealthProbeEndpointName
     functionAppName: functionRegion1Deployment.outputs.functionAppName
     location: location1
     logAnalyticsWorkspaceName: loggingDeployment.outputs.logAnalyticsWorkspaceName
@@ -156,7 +155,6 @@ module applicationGatewayRegion2Deployment 'application-gateway.bicep' = {
   params: {
     applicationGatewayName: names.outputs.region2ApplicationGatewayName
     applicationGatewaySubnetName: virtualNetworkRegion2Deployment.outputs.applicationGatewaySubnetName
-    functionAppHealthProbeEndpointName: names.outputs.functionAppHealthProbeEndpointName
     functionAppName: functionRegion2Deployment.outputs.functionAppName
     location: location2
     logAnalyticsWorkspaceName: loggingDeployment.outputs.logAnalyticsWorkspaceName
@@ -171,14 +169,16 @@ module apiManagementDeployment 'api-management.bicep' = {
     apiManagementServiceName: names.outputs.apiManagementServiceName
     apiManagementServicePublisherEmail: apiManagementServicePublisherEmail
     apiManagementServicePublisherName: apiManagementServicePublisherName
-    location: location1
+    location1: location1
+    location2: location2
     logAnalyticsWorkspaceName: loggingDeployment.outputs.logAnalyticsWorkspaceName
-    region1: region1
-    region2: region2
     trafficManagerName: trafficManagerDeployment.outputs.trafficManagerName
     keyVaultName: keyVaultDeployment.outputs.keyVaultName
     keyVaultSecretName: keyVaultDeployment.outputs.functionAppKeyName
     managedIdentityName: managedIdentityDeployment.outputs.managedIdentityName
+    apiManagementServiceApiEndpoint: names.outputs.apiManagementServiceApiEndpoint
+    apiManagementServiceApiApplicationEndpoint: names.outputs.apiManagementServiceApiApplicationEndpoint
+    appInsightsName: loggingDeployment.outputs.appInsightsName
   }
 }
 
@@ -203,3 +203,12 @@ module trafficManagerDeployment 'traffic-manager.bicep' = {
     publicIpRegion2Name: applicationGatewayRegion2Deployment.outputs.publicIpName
   }
 }
+
+output frontDoorEndpoint string = '${frontDoorDeployment.outputs.frontDoorEndpoint}/${names.outputs.apiManagementServiceApiEndpoint}/${names.outputs.apiManagementServiceApiApplicationEndpoint}'
+output apimServiceEndpoint string = apiManagementDeployment.outputs.apiManagementServiceEndpoint
+output apimServiceSubscriptionKey string = apiManagementDeployment.outputs.apiManagementServiceSubscriptionKey
+output trafficManagerEndpoint string = '${trafficManagerDeployment.outputs.trafficManagerEndpoint}/${names.outputs.apiManagementServiceApiEndpoint}/${names.outputs.apiManagementServiceApiApplicationEndpoint}'
+output region1ApplicationGatewayEndpoint string = '${applicationGatewayRegion1Deployment.outputs.applicationGatewayEndpoint}/${names.outputs.apiManagementServiceApiEndpoint}/${names.outputs.apiManagementServiceApiApplicationEndpoint}'
+output region1FunctionAppEndpoint string = '${functionRegion1Deployment.outputs.functionAppEndpoint}/${names.outputs.apiManagementServiceApiEndpoint}/${names.outputs.apiManagementServiceApiApplicationEndpoint}'
+output region2ApplicationGatewayEndpoint string = '${applicationGatewayRegion2Deployment.outputs.applicationGatewayEndpoint}/${names.outputs.apiManagementServiceApiEndpoint}/${names.outputs.apiManagementServiceApiApplicationEndpoint}'
+output region2FunctionAppEndpoint string = '${functionRegion2Deployment.outputs.functionAppEndpoint}/${names.outputs.apiManagementServiceApiEndpoint}/${names.outputs.apiManagementServiceApiApplicationEndpoint}'

@@ -87,3 +87,4 @@ resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
 }
 
 output trafficManagerName string = trafficManager.name
+output trafficManagerEndpoint string = 'https://${trafficManager.properties.dnsConfig.fqdn}'

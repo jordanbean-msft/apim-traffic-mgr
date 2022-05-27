@@ -177,3 +177,4 @@ resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-pr
 }
 
 output functionAppName string = functionApp.name
+output functionAppEndpoint string = 'https://${functionApp.properties.defaultHostName}'
